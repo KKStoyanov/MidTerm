@@ -46,10 +46,31 @@ public abstract class Person implements java.io.Serializable {
 		return DOB;
 	}
 
-	public void setDOB(Date DOB){
-		this.DOB = DOB;
-		
-		
+	public void setDOB(Date DOB) throws PersonException {
+		Date date = new Date();
+		Calendar cal = Calendar.getInstance();
+		Calendar cal2 = Calendar.getInstance();
+		cal.setTime(date);
+		cal2.setTime(DOB);
+
+		int yearOfBirth = cal2.get(Calendar.YEAR);
+		int currentYear = cal.get(Calendar.YEAR);
+		int yearDifference = currentYear - yearOfBirth;
+
+		int monthOfBirth = cal2.get(Calendar.MONTH);
+		int currentMonth = cal.get(Calendar.MONTH);
+		int monthDifference = currentMonth - monthOfBirth;
+
+		int dayOfBirth = cal2.get(Calendar.DATE);
+		int currentDay = cal.get(Calendar.DATE);
+		int dayDifference = currentDay - dayOfBirth;
+
+		if ((yearDifference > 100) || ((yearDifference == 100) && (monthDifference >= 1))
+				|| ((yearDifference == 100) && (monthDifference == 0) && (dayDifference >= 1))) {
+			throw new PersonException(this);
+		} else
+			this.DOB = DOB;
+
 	}
 
 	public void setAddress(String newAddress) {
@@ -60,9 +81,14 @@ public abstract class Person implements java.io.Serializable {
 		return address;
 	}
 
-	public void setPhone(String newPhone_number) {
-		phone_number = newPhone_number;
-	
+	public void setPhone(String newPhone_number) throws PersonException {
+		Pattern pattern = Pattern.compile("[(]*(\\d{3})[)]*-(\\d{3})-(\\d{4})");
+		Matcher matcher = pattern.matcher(newPhone_number);
+
+		if (matcher.matches()) {
+			phone_number = newPhone_number;
+		} else
+			throw new PersonException(this);
 	}
 
 	public String getPhone() {
@@ -88,9 +114,8 @@ public abstract class Person implements java.io.Serializable {
 	 * Constructors Constructor with arguments
 	 */
 
-	public Person(String FirstName, String MiddleName, String LastName,
-			Date DOB, String Address, String Phone_number, String Email)
-	{
+	public Person(String FirstName, String MiddleName, String LastName, Date DOB, String Address, String Phone_number,
+			String Email) throws PersonException {
 		this.FirstName = FirstName;
 		this.MiddleName = MiddleName;
 		this.LastName = LastName;
@@ -98,12 +123,11 @@ public abstract class Person implements java.io.Serializable {
 		this.address = Address;
 		this.setPhone(Phone_number);
 		this.email_address = Email;
-		
+
 	}
 
 	public void PrintName() {
-		System.out.println(this.FirstName + ' ' + this.MiddleName + ' '
-				+ this.LastName);
+		System.out.println(this.FirstName + ' ' + this.MiddleName + ' ' + this.LastName);
 	}
 
 	public void PrintDOB() {
@@ -123,16 +147,14 @@ public abstract class Person implements java.io.Serializable {
 
 		// If birth date is greater than todays date (after 2 days adjustment of
 		// leap year) then decrement age one year
-		if ((birthDate.get(Calendar.DAY_OF_YEAR)
-				- today.get(Calendar.DAY_OF_YEAR) > 3)
+		if ((birthDate.get(Calendar.DAY_OF_YEAR) - today.get(Calendar.DAY_OF_YEAR) > 3)
 				|| (birthDate.get(Calendar.MONTH) > today.get(Calendar.MONTH))) {
 			age--;
 
 			// If birth date and todays date are of same month and birth day of
 			// month is greater than todays day of month then decrement age
 		} else if ((birthDate.get(Calendar.MONTH) == today.get(Calendar.MONTH))
-				&& (birthDate.get(Calendar.DAY_OF_MONTH) > today
-						.get(Calendar.DAY_OF_MONTH))) {
+				&& (birthDate.get(Calendar.DAY_OF_MONTH) > today.get(Calendar.DAY_OF_MONTH))) {
 			age--;
 		}
 
